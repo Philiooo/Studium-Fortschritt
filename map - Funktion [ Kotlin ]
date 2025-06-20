@@ -1,0 +1,29 @@
+data class Product(val name: String, val price: Double)
+
+class ProductList(val products: List<Pair<Product, Double>>) {
+
+    fun <R, S> map(transform: (Product, Double) -> Pair<R, S>): List<Pair<R, S>> {
+        val result = mutableListOf<Pair<R, S>>()
+        products.forEach { (product, discount) ->
+            result.add(transform(product, discount))
+        }
+        return result
+    }
+}
+
+fun main() {
+    val productsWithDiscount = listOf(
+        Pair(Product("Laptop", 999.99), 0.10),
+        Pair(Product("Smartphone", 499.99), 0.15),
+        Pair(Product("Tablet", 299.99), 0.05)
+    )
+
+    val productList = ProductList(productsWithDiscount)
+
+    // Beispiel 1: Produktname und Endpreis nach Rabatt
+    val discountedPrices = productList.map { product, discount ->
+        val finalPrice = product.price * (1 - discount)
+        Pair(product.name, finalPrice)
+    }
+    println(discountedPrices) // Ausgabe: [(Laptop, 899.991), (Smartphone, 424.9915), (Tablet, 284.9905)]
+}

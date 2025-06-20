@@ -1,2 +1,2 @@
-# AP1
-Praktikumsaufgaben vom Modul "Algorithmen und Programmierung 1"
+# AP2
+Aufgaben aus dem Modul "Algorithmen und Programmierung 2" [ Kötlin ]

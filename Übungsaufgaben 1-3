@@ -1,0 +1,206 @@
+import java.beans.beancontext.BeanContextServiceAvailableEvent
+
+fun main(){
+
+    val book1 = Medium.Book("Die drei ???", "Paul", 450, true, Genre.KRIMI)
+    val book2 = Medium.Book("Herr der Ringe", "Philipp", 600, true, Genre.FANTASY)
+    val book3 = Medium.Book("Die Rückkehr des Königs", "J.R.R", 500, true, Genre.FANTASY)
+    val magazine1 = Medium.Magazine("National Geographic", 5, "01-01-2024", true, Genre.BILDUNG)
+    val DVD1 = Medium.DVD("Das Schweigen der Lämmer", "Jonathan Demme", 118, 9, true, Genre.HORROR)
+
+    println(book1.summarize())
+    println(book2.summarize())
+    println(book3.summarize())
+    println(magazine1.summarize())
+    println(DVD1.summarize())
+
+
+}
+enum class Genre{
+    KRIMI,
+    FANTASY,
+    HORROR,
+    BILDUNG,
+}
+
+interface Borrowbable{
+    fun borrowItem()
+    fun returnItem()
+
+}
+
+open class Medium(val title: String,
+                  var isAvailable: Boolean,
+                  val genre: Genre
+){
+    open fun summarize() : String = " mit dem Genre $genre ist" + if (isAvailable) " verfügabr" else " ausgeliehen"
+
+    open fun borrowItem(){
+        if(isAvailable){
+            isAvailable = false
+            println("Das Medium wurde Ausgeliehen")
+        }else{
+            println("Das Medium ist schon Ausgeliehen")
+        }
+
+    fun returnItem(){
+        if(isAvailable){
+            isAvailable = true
+            println("Das Medium wurde zurückgegeben")
+        }
+    }
+
+}
+
+class Book(title: String,
+           val author: String,
+           val pages: Int,
+           isAvailable: Boolean,
+           genre: Genre
+
+):Medium(title, isAvailable, genre){
+
+    override fun summarize() : String = "Das Buch" + super.summarize()
+
+    override fun borrowItem(){
+        super.borrowItem()
+        val loanPeriod = when(genre){
+            Genre.BILDUNG -> 60
+            else -> 30
+        }
+    }
+}
+class Magazine(
+    title: String,
+    val issueNo: Int,
+    val publication: String,
+    isAvailable: Boolean,
+    genre: Genre
+): Medium(title, isAvailable, genre){
+
+    override fun summarize(): String = "Das Magazin" + super.summarize()
+
+    fun subscribe(email: String) {
+        println("$email hat $title abonniert.")
+    }
+}
+class DVD(
+    title: String,
+    val director: String,
+    val duration: Int,
+    val usk: Int,
+    isAvailable: Boolean,
+    genre: Genre
+):Medium(title, isAvailable, genre){
+
+    override fun summarize(): String = "Die DVD" + super.summarize()
+
+    fun play() {
+    }
+
+    fun pause() {
+        println("Pause")
+    }
+
+    override fun borrowItem(){
+        super.borrowItem()
+        if (usk > 12){
+            println("Du bist zu Jung. Kannst du mir den Ausweis zeigen!")
+        }
+    }
+}
+
+class Library(val name : String,
+              var media : MutableList<Medium>
+) {
+    val availableMedium: Int?
+        get() {
+            if (media.isEmpty()) {
+                return null
+            }
+            var count = 0
+            for (Medium in media) {
+                if (Medium.isAvailable)
+                    count++
+            }
+
+            return count
+
+        }
+
+    fun addMedium(Medium: Medium) {
+        media.add(Medium)
+    }
+
+    fun getAll(){
+        if (media.isEmpty()) {
+            throw Exception("Das Medium ist zurzeit nicht verfügabar")
+        }
+            var result = ""
+            for (item in media) {
+                result += when (item) {
+                    is Book -> "${item.title} (${item.author}) - ${item.pages} Seiten"
+                    is Magazine -> "${item.title} (${item.issueNo}) - Veröffentlicht ${item.publication}"
+                    is DVD -> "${item.title} (Regisseur ${item.director}) - Dauer: ${item.duration} Minuten"
+                    else -> "${item.title}, ${item.genre}"
+                }
+            }
+        }
+
+        fun getAvailableMedia(): MutableList<Medium> {
+            val available = mutableListOf<Medium>()
+            for (item in media) {
+                if (item.isAvailable) {
+                    available.add(item)
+                    println(item)
+                }
+            }
+            return available
+        }
+
+        fun calculateAveragePages(): Int{
+            var sum = 0
+            var count = 0
+                for (item in media){
+                    if (item is Book){
+                        sum += item.pages
+                        count++
+                    }
+                }
+                return sum / count
+        }
+
+    }
+    data class BorrowInfo(val name: String, val item: Medium)
+    class Node(var data : BorrowInfo, var next : Node? = null)
+    class BorrowHistory() {
+
+        var first: Node? = null
+
+        fun addFirst(data: BorrowInfo) {
+            first = Node(data, first)
+        }
+
+        fun clear() {
+            first = null
+        }
+
+        fun getLast(): BorrowInfo? {
+            var runPointer = first
+            while (runPointer?.next != null) {
+                runPointer = runPointer.next
+            }
+            return runPointer?.data
+        }
+
+        fun <R> map(transform: (BorrowInfo) -> R): List<R> {
+            var res = mutableListOf<R>()
+            var runPointer = first
+            while (runPointer != null) {
+                res.add(transform(runPointer.data))
+                runPointer = runPointer.next
+            }
+            return res
+        }
+    }
+}
