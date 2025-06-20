@@ -1,2 +1,2 @@
-# Studium-Fortschritt
-Code aus meinem Studium
+# AP1
+Praktikumsaufgaben vom Modul "Algorithmen und Programmierung 1"
